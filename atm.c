@@ -1,0 +1,297 @@
+#include "atm.h"
+#define SIZE_OF_COMMAND_FILE 20
+#define PLACE_OF_N_CHAR 5
+#define MAX_WORD_SIZE 20
+
+    void* atm_start(void* atm_data)
+    {
+
+        ATM* My_ATM = (ATM*)atm_data; //Getting my current atm serial number
+
+
+       /* char cwd[100]; //CURRENT DIRECTORY TEST
+        getcwd(cwd,100);
+        printf("%s\n",cwd); */
+
+         /*printf("WE ARE HERE\n");
+        printf("I'm number %d\n",My_ATM->serial);*/
+
+        char my_file_name[SIZE_OF_COMMAND_FILE];
+        strcpy(my_file_name,"ATM_n_input_file.txt"); //Finding out which file should we open
+        my_file_name[PLACE_OF_N_CHAR-1] = My_ATM->serial + '0' + 1; //From int to ascii
+        printf("Our file name is: %s\n",my_file_name);
+
+        FILE* command_file = fopen(my_file_name,"r");
+        if(command_file == NULL)
+        {
+            printf("NO FILE FOUND\n");
+            exit(1);
+        }
+        char* line = NULL; //A string that should hold our current line
+        ssize_t read; //For the line read
+        size_t len =0; //For the lmine read
+        char* delim = (char*)malloc(sizeof(char)*3); //Delimeters
+        strcpy(delim," \t\n\0");
+        char* args[5];
+
+
+        while((read = getline(&line, &len, command_file)) != -1) //We got a new line
+        {
+            bool illegal_command = false;
+            //printf("%s",line);
+            //NEW ARGS
+            args[0] = NULL;
+            args[1] = NULL;
+            args[2] = NULL;
+            args[3] = NULL;
+            args[4] = NULL;
+            //NEW ARGS
+            args[0] = strtok(line,delim); //Command
+
+
+            /*printf("%s",line);
+            args[0] = (char*)malloc(sizeof(*line));
+            strcpy(args[0],line);*/
+            if(args[0] == NULL) //Checking we actually got the argument
+            {
+                illegal_command = true;
+                printf("CANT READ THE COMMAND\n");
+                return 0;
+            }
+            //printf("%s\n",args[0]);
+            int args_num = 1;
+
+
+            if(!(strcmp(args[0],"O") && strcmp(args[0],"D") && strcmp(args[0],"W") && strcmp(args[0],"B") && strcmp(args[0],"T" )))
+            {
+                for(int j=1; (args[j] = strtok(NULL,delim))!=NULL; j++)
+                {
+                    args_num++;
+                    if(args_num > 5)
+                    {
+                        illegal_command = true;
+                        break;
+                    }
+                }
+
+                /*Illegal command check*/
+                /*Illegal command check*/
+                /*Illegal command check*/
+                /*Illegal command check*/
+
+                //Time to decide which command this is
+                if(!strcmp(args[0],"O"))
+                {
+                    open_account(args[1],args[2],args[3]);
+                }
+
+                if(!strcmp(args[0],"D"))
+                {
+                    deposit(args[1],args[2],args[3]);
+                }
+
+                if(!strcmp(args[0],"B"))
+                {
+
+                }
+            }
+
+        }
+
+        /*free(args[0]);
+        free(args[1]);
+        free(args[2]);
+        free(args[3]);
+        free(args[4]);*/
+        free(line);
+        fclose(command_file);
+        pthread_exit(NULL);
+}
+
+
+
+
+void open_account(char* account_number, char* password, char* initial_ammount)
+{
+    sem_wait(bank_sem_write);
+    //Initializing
+    account* new_account = (account*)malloc(sizeof(account));
+    new_account->number = atoi(account_number);
+    new_account->balance = atoi(initial_ammount);
+    new_account->password = (char*)malloc(sizeof(*password));
+    strcpy(new_account->password,password);
+    new_account->account_sem_read = (sem_t*)malloc(sizeof(sem_t));
+    new_account->account_sem_write = (sem_t*)malloc(sizeof(sem_t));
+    sem_init(new_account->account_sem_read,0,1);
+    sem_init(new_account->account_sem_write,0,1);
+    new_account->account_readers = 0;
+    for(int i=0; i<MAX_ACCOUNT_NUM;i++)
+    {
+        if(account_full[i]==true) //CHECKING IF THIS ACCOUNT ALREADY EXISTS
+        {
+            if(account_ARR[i]->number==atoi(account_number))
+            {
+                //print error and return
+                return;
+            }
+        }
+    }
+
+    //Pushing the new account into the array
+    for(int i=0;i<MAX_ACCOUNT_NUM;i++)
+    {
+        if(account_full[i]==false)
+        {
+            account_ARR[i]=new_account;
+            account_full[i]=true;
+            break;
+        }
+    }
+    sem_post(bank_sem_write);
+
+}
+
+void deposit (char* account_number, char* password, char* ammount)
+{
+    READ_LOCK(bank_sem_read,bank_sem_write,&bank_readers); //Bank READ
+    bool account_found = false;
+    bool password_correct = false;
+    for(int i=0; i<MAX_ACCOUNT_NUM;i++) //Checking if this acccount exists
+    {
+        if(account_full[i]==true)
+        {
+            if((account_ARR[i]->number==atoi(account_number))) //THIS IS THE ACCOUNT
+            {
+                account_found = true;
+                if(!strcmp(account_ARR[i]->password,password)) //password matches
+                {
+                sem_wait(account_ARR[i]->account_sem_write); //START WRITE
+                password_correct = true;
+                account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
+                sem_post(account_ARR[i]->account_sem_write); //END WRITE
+                }
+            }
+        }
+    }
+
+    if(account_found == false)
+    {
+        //WRITE ERROR ACOUNT NOW FOUND
+    }
+    else if(password_correct == false)
+    {
+        //WRITE ERROR PASSWORD WRONG
+    }
+
+    READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
+}
+
+void withdraw(char* account_number, char* password, char* ammount)
+{
+    READ_LOCK(bank_sem_read,bank_sem_write,&bank_readers); //Bank READ
+    bool account_found = false;
+    bool password_correct = false;
+    bool enough_money = false;
+    for(int i=0; i<MAX_ACCOUNT_NUM;i++) //Checking if this acccount exists
+    {
+        if(account_full[i]==true)
+        {
+            if((account_ARR[i]->number==atoi(account_number))) //THIS IS THE ACCOUNT
+            {
+                account_found = true;
+               if(!strcmp(account_ARR[i]->password,password)) //password matches
+                {
+                    password_correct = true;
+                    if(account_ARR[i]->balance > atoi(ammount))
+                    {
+                        enough_money = true;
+                        sem_wait(account_ARR[i]->account_sem_write); //START WRITE
+                        account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
+                        sem_post(account_ARR[i]->account_sem_write); //END WRITE
+                    }
+                }
+            }
+        }
+    }
+
+    if(account_found == false)
+    {
+        //WRITE ERROR ACOUNT NOW FOUND
+    }
+    else if(password_correct == false)
+    {
+        //WRITE ERROR PASSWORD WRONG
+    }
+    else if(enough_money == false)
+    {
+        //WRITE NOT ENOUGH MONEY
+    }
+
+    READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
+}
+
+void balance (char* account_number, char* password)
+{
+    READ_LOCK(bank_sem_read,bank_sem_write,&bank_readers); //Bank READ
+    bool account_found = false;
+    bool password_correct = false;
+    for(int i=0; i<MAX_ACCOUNT_NUM;i++) //Checking if this acccount exists
+    {
+        if(account_full[i]==true)
+        {
+            if((account_ARR[i]->number==atoi(account_number))) //THIS IS THE ACCOUNT
+            {
+                account_found = true;
+                if(!strcmp(account_ARR[i]->password,password)) //password matches
+                {
+                READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers))
+                password_correct = true;
+                //Print Balance
+                READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers))
+                }
+            }
+        }
+    }
+
+    if(account_found == false)
+    {
+        //WRITE ERROR ACOUNT NOW FOUND
+    }
+    else if(password_correct == false)
+    {
+        //WRITE ERROR PASSWORD WRONG
+    }
+
+    READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
+
+}
+
+
+
+
+
+
+//HELPING FUNCTIONS
+void READ_LOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
+{
+    sem_wait(read_sem);
+    (*readers)++;
+    if(*readers == 1)
+    {
+        sem_wait(write_sem);
+    }
+    sem_post(read_sem);
+}
+
+void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
+{
+    sem_wait(read_sem);
+    (*readers--);
+    if(*readers==0)
+    {
+        sem_post(write_sem);
+    }
+    sem_post(read_sem);
+}
+
+
