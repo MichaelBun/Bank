@@ -202,7 +202,7 @@ void withdraw(char* account_number, char* password, char* ammount)
                if(!strcmp(account_ARR[i]->password,password)) //password matches
                 {
                     password_correct = true;
-                    if(account_ARR[i]->balance > atoi(ammount))
+                    if(account_ARR[i]->balance >= atoi(ammount))
                     {
                         enough_money = true;
                         sem_wait(account_ARR[i]->account_sem_write); //START WRITE
@@ -230,6 +230,7 @@ void withdraw(char* account_number, char* password, char* ammount)
     READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
 }
 
+
 void balance (char* account_number, char* password)
 {
     READ_LOCK(bank_sem_read,bank_sem_write,&bank_readers); //Bank READ
@@ -244,10 +245,10 @@ void balance (char* account_number, char* password)
                 account_found = true;
                 if(!strcmp(account_ARR[i]->password,password)) //password matches
                 {
-                READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers))
+                READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                 password_correct = true;
                 //Print Balance
-                READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers))
+                READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                 }
             }
         }
@@ -269,9 +270,83 @@ void balance (char* account_number, char* password)
 
 
 
+void transfer(char* account_number, char* password, char* target_account, char* ammount)
+{
+    READ_LOCK(bank_sem_read,bank_sem_write,&bank_readers); //Bank READ
+    account* from_account=NULL;
+    account* to_account=NULL;
+    bool from_account_found = false;
+    bool password_correct = false;
+    bool enough_money = false;
+    bool to_account_found = false;
+
+    //SAVING THE POINTERS
+    for(int i=0; i<MAX_ACCOUNT_NUM;i++) //Checking if this acccount exists
+    {
+        if(account_full[i]==true)
+        {
+            if((account_ARR[i]->number==atoi(account_number))) //THIS IS THE ACCOUNT
+            {
+                from_account_found = true;
+                if(!strcmp(account_ARR[i]->password,password)) //password matches
+                {
+                    password_correct = true;
+                    if(account_ARR[i]->balance >= atoi(ammount)) //Checking if we have more than ammount
+                    {
+                        READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+                        enough_money = true;
+                        from_account = account_ARR[i]; //Saving the pointer to this account
+                        READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+                    }
+                }
+            }
+            else if(account_ARR[i]->number == atoi(target_account))
+            {
+                READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+                to_account_found = true;
+                to_account = account_ARR[i]; //Saving the pointer to this account
+                READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+            }
+        }
+    }
+
+    //WRITING TO THE POINTERS
+    if((from_account_found == true) && (to_account_found == true ) && (password_correct == true) && (enough_money == true))
+    {
+        sem_wait(from_account->account_sem_write);
+        sem_wait(to_account->account_sem_write);
+        from_account->balance = from_account->balance - atoi(ammount);
+        to_account->balance = to_account->balance + atoi(ammount);
+        sem_post(to_account->account_sem_write);
+        sem_post(to_account->account_sem_write);
+    }
+
+    if(from_account_found == false)
+    {
+        //WRITE ERROR ACOUNT NOW FOUND
+    }
+    else if(to_account_found == false)
+    {
+        //WRITE ERROR TO ACCOUNT NOW FOUND WRONG
+    }
+    else if(password_correct == false)
+    {
+        //WRITE ERROR HERE
+    }
+    else if(enough_money == false)
+    {
+        //Write no enough money here
+    }
+
+
+    READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
+}
+
+
 
 
 //HELPING FUNCTIONS
+//READERS WRITERS 2016S
 void READ_LOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
 {
     sem_wait(read_sem);
@@ -282,7 +357,7 @@ void READ_LOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
     }
     sem_post(read_sem);
 }
-
+//READERS WRITERS 2016S
 void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
 {
     sem_wait(read_sem);

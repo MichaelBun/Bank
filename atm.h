@@ -43,6 +43,8 @@ FILE* log_file; //Pointer to our log file
 void* atm_start(void* atm_data);
 void open_account(char* account_name, char* password, char* initial_ammount); //opens a new account
 void deposit (char* account_number, char* password, char* ammount);
+void balance (char* account_number, char* password);
+void transfer(char* account_number, char* password, char* target_account, char* ammount);
 
 //HELPING FUNCTIONS
 void READ_LOCK(sem_t* read_sem, sem_t* write_sem, int* readers);
