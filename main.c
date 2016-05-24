@@ -39,7 +39,6 @@ int main()
     log_file = fopen("log.txt","w");
 
 
-
     //Threads
     pthread_t ATM_THR[ATM_NUM];
     for(int i=0; i<ATM_NUM; i++)
