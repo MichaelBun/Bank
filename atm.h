@@ -47,6 +47,8 @@ void balance (char* account_number, char* password,int atm_num);
 void transfer(char* account_number, char* password, char* target_account, char* ammount,int atm_num);
 void withdraw(char* account_number, char* password, char* ammount,int atm_num);
 
+int account_commision(account acc, int percent);//TODO
+
 //HELPING FUNCTIONS
 void READ_LOCK(sem_t* read_sem, sem_t* write_sem, int* readers);
 void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers);
