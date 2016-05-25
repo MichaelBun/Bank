@@ -140,6 +140,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
         {
             if(account_ARR[i]->number==atoi(account_number))
             {
+                //sleep(1);
                 fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num);
                 account_num_taken = true;
                 free(new_account->account_sem_read);
@@ -155,6 +156,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
     {
         if(account_full[i]==false)
         {
+            //sleep(1);
             account_ARR[i]=new_account;
             account_full[i]=true;
             fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num,new_account->number,new_account->password,new_account->balance);
@@ -180,6 +182,7 @@ void deposit (char* account_number, char* password, char* ammount,int atm_num)
                 if(!strcmp(account_ARR[i]->password,password)) //password matches
                 {
                 sem_wait(account_ARR[i]->account_sem_write); //START WRITE
+                //sleep(1);
                 password_correct = true;
                 account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
                 fprintf(log_file,"%d: Account %d new balance is %d after %d $ was deposited\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
@@ -222,6 +225,7 @@ void withdraw(char* account_number, char* password, char* ammount,int atm_num)
                     {
                         enough_money = true;
                         sem_wait(account_ARR[i]->account_sem_write); //START WRITE
+                        //sleep(1);
                         account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
                          fprintf(log_file,"%d: Account %d new balance is %d after %d $ was withdrew\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
                         sem_post(account_ARR[i]->account_sem_write); //END WRITE
@@ -264,6 +268,7 @@ void balance (char* account_number, char* password,int atm_num)
                 {
                 READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                 password_correct = true;
+                //sleep(1);
                 fprintf(log_file,"%d: Account %d balance is %d\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance);
                 READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                 }
@@ -313,6 +318,7 @@ void transfer(char* account_number, char* password, char* target_account, char* 
                     {
                         READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                         enough_money = true;
+                        //sleep(1);
                         from_account = account_ARR[i]; //Saving the pointer to this account
                         READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                     }

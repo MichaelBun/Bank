@@ -8,7 +8,7 @@
 #include <semaphore.h>
 
 #define MAX_LINE_SIZE 30
-#define ATM_NUM 1
+#define ATM_NUM 2
 #define MAX_ACCOUNT_NUM 1000
 
 sem_t* bank_sem_read;
