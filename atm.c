@@ -181,12 +181,12 @@ void deposit (char* account_number, char* password, char* ammount,int atm_num)
                 account_found = true;
                 if(!strcmp(account_ARR[i]->password,password)) //password matches
                 {
-                sem_wait(account_ARR[i]->account_sem_write); //START WRITE
-                //sleep(1);
-                password_correct = true;
-                account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
-                fprintf(log_file,"%d: Account %d new balance is %d after %d $ was deposited\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
-                sem_post(account_ARR[i]->account_sem_write); //END WRITE
+                    sem_wait(account_ARR[i]->account_sem_write); //START WRITE
+                    //sleep(1);
+                    password_correct = true;
+                    account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
+                    fprintf(log_file,"%d: Account %d new balance is %d after %d $ was deposited\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
+                    sem_post(account_ARR[i]->account_sem_write); //END WRITE
                 }
             }
         }
