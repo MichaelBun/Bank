@@ -36,8 +36,7 @@ bool account_full[MAX_ACCOUNT_NUM]; //Shows if the account in place i is empty o
 ATM *ATM_ARR[ATM_NUM]; //Initialize the ATM list
 account *account_ARR[MAX_ACCOUNT_NUM];//Initializing the account array
 FILE* log_file; //Pointer to our log file
-
-
+int num_of_accs; 
 
 //IMPLEMENTATION FUNCTIONS
 void* atm_start(void* atm_data);
@@ -47,7 +46,7 @@ void balance (char* account_number, char* password,int atm_num);
 void transfer(char* account_number, char* password, char* target_account, char* ammount,int atm_num);
 void withdraw(char* account_number, char* password, char* ammount,int atm_num);
 
-int account_commision(account acc, int percent);//TODO
+int account_commision(account* acc, int percent);//TODO
 
 //HELPING FUNCTIONS
 void READ_LOCK(sem_t* read_sem, sem_t* write_sem, int* readers);

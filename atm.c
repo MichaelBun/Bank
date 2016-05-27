@@ -1,4 +1,5 @@
 #include "atm.h"
+#include "bank.h"
 #define SIZE_OF_COMMAND_FILE 20
 #define PLACE_OF_N_CHAR 5
 #define MAX_WORD_SIZE 20
@@ -34,6 +35,8 @@
         strcpy(delim," \t\n\0");
         char* args[5];
 
+
+		//pbank bank = bank_init(account_ARR);
 
         while((read = getline(&line, &len, command_file)) != -1) //We got a new line
         {
@@ -152,6 +155,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
     }
 
     //Pushing the new account into the array
+	num_of_accs++;
     for(int i=0; (i<MAX_ACCOUNT_NUM) && (account_num_taken == false)  ;i++) //While we find an empty space and
     {
         if(account_full[i]==false)
@@ -394,4 +398,12 @@ void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
     sem_post(read_sem);
 }
 
+int account_commision(account* pacc, double percent) {
+	
+	sem_wait(pacc->account_sem_write); //START WRITE
+	int comission = round(pacc->balance*(double)percent / 100);
+	pacc->balance -= comission;
+	sem_post(pacc->account_sem_write); //END WRITE//unlock
+	return comission;
 
+}
