@@ -84,6 +84,14 @@ int main()
         pthread_join(ATM_THR[i],NULL);
     }
 
+    pthread_cancel (commission_thread);
+
+    pthread_join (commission_thread, NULL);
+
+	pthread_cancel (print_thread);
+
+	pthread_join (print_thread, NULL);
+
     //DESTROYING BANK SEMAPHORE
     //DESTROYING BANK SEMAPHORE
     //DESTROYING BANK SEMAPHORE

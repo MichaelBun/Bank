@@ -16,6 +16,7 @@ pbank bank_init(account** pacc_arr) {
 	pbank bank = (pbank)malloc(sizeof(bank));
 	bank->pacc_arr = pacc_arr;
 	bank->bank_balance = 0;
+	return bank;
 	//bank->num_of_accs = 0;
 }
 
@@ -28,13 +29,13 @@ void commision(pbank bank) {
 	srand(time(NULL));
 	double percentage = (rand() % 2 + 2);
 
-	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank 
+	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
 	for (int i = 0; i<num_of_accs; i++) {
-		int sum = account_commision(bank->pacc_arr[i], percentage); 
+		int sum = account_commision(bank->pacc_arr[i], percentage);
 		bank->bank_balance += sum;
 		//Need lock for log file
 		//READ_LOCK(bank->pacc_arr[i].account_sem_read, bank->pacc_arr[i].account_sem_write, &bank->pacc_arr[i].account_readers));
-		fprintf(log_file, "Bank: commissions of %.3f % were charged, the bank gained %d $ from account %d\n", percentage, sum, bank->pacc_arr[i]->number);
+		fprintf(log_file, "Bank: commissions of %.3f %% were charged, the bank gained %d $ from account %d\n", percentage, sum, bank->pacc_arr[i]->number);
 		//READ_UNLOCK(bank->pacc_arr[i].account_sem_read, bank->pacc_arr[i].account_sem_write, &bank->pacc_arr[i].account_readers));
 	}
 
@@ -46,26 +47,24 @@ void print_acc(pbank bank) {
 	printf("\033[2J");
 	printf("\033[1;1H");
 
-	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
-	
-
 	sem_wait(bank_sem_write);//lock
 	qsort(bank->pacc_arr, num_of_accs, sizeof(account*), cmpfunc); //sort account array
 	sem_post(bank_sem_write);//unlock
 
+	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
 
 	if (num_of_accs == 0) {
 		READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 		return;
 	}
 
-	printf("Current Bank Status\n");
+	fprintf(log_file, "Current Bank Status\n");
 	for (int i = 0; i<num_of_accs; i++) {
-		printf(log_file, "Account %d: Balance = %d , ", bank->pacc_arr[i]->number, bank->pacc_arr[i]->balance);
-		printf(log_file, "Account Password = %d, \n", bank->pacc_arr[i]->password);
+		fprintf(log_file, "Account %d: Balance = %d , ", bank->pacc_arr[i]->number, bank->pacc_arr[i]->balance);
+		fprintf(log_file, "Account Password = %s, \n", bank->pacc_arr[i]->password);
 	}
 
-	printf(log_file, "The Bank has %d $", bank->bank_balance);
+	fprintf(log_file, "The Bank has %d $", bank->bank_balance);
 	READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 }
 
