@@ -1,5 +1,6 @@
 #include "atm.h"
 #include "bank.h"
+#include "math.h"
 #define SIZE_OF_COMMAND_FILE 20
 #define PLACE_OF_N_CHAR 5
 #define MAX_WORD_SIZE 20
@@ -40,7 +41,7 @@
 
         while((read = getline(&line, &len, command_file)) != -1) //We got a new line
         {
-            bool illegal_command = false;
+         //   bool illegal_command = false;
             //printf("%s",line);
             //NEW ARGS
             args[0] = NULL;
@@ -49,6 +50,7 @@
             args[3] = NULL;
             args[4] = NULL;
             //NEW ARGS
+
             args[0] = strtok(line,delim); //Command
 
 
@@ -57,7 +59,7 @@
             strcpy(args[0],line);*/
             if(args[0] == NULL) //Checking we actually got the argument
             {
-                illegal_command = true;
+               // illegal_command = true;
                 printf("CANT READ THE COMMAND\n");
             }
             //printf("%s\n",args[0]);
@@ -71,7 +73,7 @@
                     args_num++;
                     if(args_num > 5)
                     {
-                        illegal_command = true;
+                 //       illegal_command = true;
                         break;
                     }
                 }
@@ -399,7 +401,7 @@ void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
 }
 
 int account_commision(account* pacc, double percent) {
-	
+
 	sem_wait(pacc->account_sem_write); //START WRITE
 	int comission = round(pacc->balance*(double)percent / 100);
 	pacc->balance -= comission;
