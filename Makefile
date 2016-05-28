@@ -14,3 +14,4 @@ main.o: main.c bank.h atm.h
 
 clean:
 	$(RM) bank *.o *.bak *~ "#"* core
+	$(RM) log.txt

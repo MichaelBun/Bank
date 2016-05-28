@@ -126,6 +126,12 @@
 
 void open_account(char* account_number, char* password, char* initial_ammount, int atm_num)
 {
+    /*int write_val;
+    int read_val;
+    sem_getvalue(bank_sem_write,&write_val);
+    sem_getvalue(bank_sem_read,&read_val);
+    printf("%d\n",write_val);
+    printf("%d\n",read_val);*/
     sem_wait(bank_sem_write);
     //Initializing
     bool account_num_taken = false;
@@ -145,8 +151,8 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
         {
             if(account_ARR[i]->number==atoi(account_number))
             {
-                //sleep(1);
-                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num);
+                sleep(1);
+                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num+1);
                 account_num_taken = true;
                 free(new_account->account_sem_read);
                 free(new_account->account_sem_write);
@@ -162,10 +168,10 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
     {
         if(account_full[i]==false)
         {
-            //sleep(1);
+            sleep(1);
             account_ARR[i]=new_account;
             account_full[i]=true;
-            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num,new_account->number,new_account->password,new_account->balance);
+            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
             break;
         }
     }
@@ -188,10 +194,10 @@ void deposit (char* account_number, char* password, char* ammount,int atm_num)
                 if(!strcmp(account_ARR[i]->password,password)) //password matches
                 {
                     sem_wait(account_ARR[i]->account_sem_write); //START WRITE
-                    //sleep(1);
+                    sleep(1);
                     password_correct = true;
                     account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
-                    fprintf(log_file,"%d: Account %d new balance is %d after %d $ was deposited\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
+                    fprintf(log_file,"%d: Account %d new balance is %d after %d $ was deposited\n",atm_num+1,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
                     sem_post(account_ARR[i]->account_sem_write); //END WRITE
                 }
             }
@@ -200,11 +206,11 @@ void deposit (char* account_number, char* password, char* ammount,int atm_num)
 
     if(account_found == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
     }
     else if(password_correct == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
     }
 
     READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
@@ -231,9 +237,9 @@ void withdraw(char* account_number, char* password, char* ammount,int atm_num)
                     {
                         enough_money = true;
                         sem_wait(account_ARR[i]->account_sem_write); //START WRITE
-                        //sleep(1);
+                        sleep(1);
                         account_ARR[i]->balance = account_ARR[i]->balance + atoi(ammount);
-                         fprintf(log_file,"%d: Account %d new balance is %d after %d $ was withdrew\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
+                         fprintf(log_file,"%d: Account %d new balance is %d after %d $ was withdrew\n",atm_num+1,account_ARR[i]->number,account_ARR[i]->balance,atoi(ammount));
                         sem_post(account_ARR[i]->account_sem_write); //END WRITE
                     }
                 }
@@ -243,15 +249,15 @@ void withdraw(char* account_number, char* password, char* ammount,int atm_num)
 
     if(account_found == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
     }
     else if(password_correct == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
     }
     else if(enough_money == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d balance is lower than %d\n",atm_num,atoi(account_number),balance_memory);
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d balance is lower than %d\n",atm_num+1,atoi(account_number),balance_memory);
     }
 
     READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
@@ -274,8 +280,8 @@ void balance (char* account_number, char* password,int atm_num)
                 {
                 READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                 password_correct = true;
-                //sleep(1);
-                fprintf(log_file,"%d: Account %d balance is %d\n",atm_num,account_ARR[i]->number,account_ARR[i]->balance);
+                sleep(1);
+                fprintf(log_file,"%d: Account %d balance is %d\n",atm_num+1,account_ARR[i]->number,account_ARR[i]->balance);
                 READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                 }
             }
@@ -284,11 +290,11 @@ void balance (char* account_number, char* password,int atm_num)
 
     if(account_found == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
     }
     else if(password_correct == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
     }
 
     READ_UNLOCK(bank_sem_read,bank_sem_write,&bank_readers);
@@ -324,7 +330,7 @@ void transfer(char* account_number, char* password, char* target_account, char* 
                     {
                         READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                         enough_money = true;
-                        //sleep(1);
+                        sleep(1);
                         from_account = account_ARR[i]; //Saving the pointer to this account
                         READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
                     }
@@ -347,26 +353,26 @@ void transfer(char* account_number, char* password, char* target_account, char* 
         sem_wait(to_account->account_sem_write);
         from_account->balance = from_account->balance - atoi(ammount);
         to_account->balance = to_account->balance + atoi(ammount);
-        fprintf(log_file,"%d: Transfer %d from account %d to account %d new account balance is %d new target account balance is %d\n",atm_num,atoi(ammount),from_account->number,to_account->number,from_account->balance,to_account->balance);
+        fprintf(log_file,"%d: Transfer %d from account %d to account %d new account balance is %d new target account balance is %d\n",atm_num+1,atoi(ammount),from_account->number,to_account->number,from_account->balance,to_account->balance);
         sem_post(to_account->account_sem_write);
         sem_post(to_account->account_sem_write);
     }
 
     if(from_account_found == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
     }
     else if(to_account_found == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num,atoi(target_account));
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(target_account));
     }
     else if(password_correct == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
     }
     else if(enough_money == false)
     {
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d balance is lower than %d\n",atm_num,atoi(account_number),balance_memory);
+        fprintf(log_file,"Error %d: Your transaction failed – account id %d balance is lower than %d\n",atm_num+1,atoi(account_number),balance_memory);
     }
 
 
@@ -403,7 +409,7 @@ void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
 int account_commision(account* pacc, double percent) {
 
 	sem_wait(pacc->account_sem_write); //START WRITE
-	int comission = round(pacc->balance*(double)percent / 100);
+	int comission = round(pacc->balance*percent / 100);
 	pacc->balance -= comission;
 	sem_post(pacc->account_sem_write); //END WRITE//unlock
 	return comission;

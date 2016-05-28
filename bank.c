@@ -30,12 +30,12 @@ void commision(pbank bank) {
 	double percentage = (rand() % 2 + 2);
 
 	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
-	for (int i = 0; i<num_of_accs; i++) {
+	for (int i = 0; i<num_of_accs && num_of_accs!=0 ; i++) {
 		int sum = account_commision(bank->pacc_arr[i], percentage);
 		bank->bank_balance += sum;
 		//Need lock for log file
 		//READ_LOCK(bank->pacc_arr[i].account_sem_read, bank->pacc_arr[i].account_sem_write, &bank->pacc_arr[i].account_readers));
-		fprintf(log_file, "Bank: commissions of %.3f %% were charged, the bank gained %d $ from account %d\n", percentage, sum, bank->pacc_arr[i]->number);
+		fprintf(log_file, "Bank: commissions of %d %% were charged, the bank gained %d $ from account %d\n", (int)percentage, sum, bank->pacc_arr[i]->number);
 		//READ_UNLOCK(bank->pacc_arr[i].account_sem_read, bank->pacc_arr[i].account_sem_write, &bank->pacc_arr[i].account_readers));
 	}
 
@@ -44,8 +44,8 @@ void commision(pbank bank) {
 }
 
 void print_acc(pbank bank) {
-	printf("\033[2J");
-	printf("\033[1;1H");
+	//printf("\033[2J");
+	//printf("\033[1;1H");
 
 	sem_wait(bank_sem_write);//lock
 	qsort(bank->pacc_arr, num_of_accs, sizeof(account*), cmpfunc); //sort account array
@@ -60,7 +60,7 @@ void print_acc(pbank bank) {
 
 	fprintf(log_file, "Current Bank Status\n");
 	for (int i = 0; i<num_of_accs; i++) {
-		fprintf(log_file, "Account %d: Balance = %d , ", bank->pacc_arr[i]->number, bank->pacc_arr[i]->balance);
+		fprintf(log_file, "Account %d: Balance = %d , \n", bank->pacc_arr[i]->number, bank->pacc_arr[i]->balance);
 		fprintf(log_file, "Account Password = %s, \n", bank->pacc_arr[i]->password);
 	}
 

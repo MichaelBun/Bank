@@ -66,17 +66,17 @@ int main()
 
 	//creating bank threads
 	pthread_t commission_thread, print_thread;
-	if (pthread_create(&commission_thread, NULL, bank_commission_thread_func, (void*)p_bank))
+	/*if (pthread_create(&commission_thread, NULL, bank_commission_thread_func, (void*)p_bank))
 	{
 		printf("ERROR\n");
 		exit(-1);
-	}
+	}*/
 
-	if (pthread_create(&print_thread, NULL, bank_print_thread_func, (void*)p_bank))
+	/*if (pthread_create(&print_thread, NULL, bank_print_thread_func, (void*)p_bank))
 	{
 		printf("ERROR\n");
 		exit(-1);
-	}
+	}*/
 
     //Checking if they have finished
     for(int i=0; i<ATM_NUM; i++)
@@ -84,13 +84,13 @@ int main()
         pthread_join(ATM_THR[i],NULL);
     }
 
-    pthread_cancel (commission_thread);
+    //pthread_cancel (commission_thread);
 
-    pthread_join (commission_thread, NULL);
+    //pthread_join (commission_thread, NULL);
 
-	pthread_cancel (print_thread);
+	//pthread_cancel (print_thread);
 
-	pthread_join (print_thread, NULL);
+	//pthread_join (print_thread, NULL);
 
     //DESTROYING BANK SEMAPHORE
     //DESTROYING BANK SEMAPHORE
