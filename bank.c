@@ -38,7 +38,9 @@ void commision(pbank bank) {
 		bank->bank_balance += sum;
 		//Need lock for log file
 		//READ_LOCK(bank->pacc_arr[i].account_sem_read, bank->pacc_arr[i].account_sem_write, &bank->pacc_arr[i].account_readers));
+		sem_wait(sem_write_to_log);
 		fprintf(log_file, "Bank: commissions of %d %% were charged, the bank gained %d $ from account %d\n", (int)percentage, sum, bank->pacc_arr[i]->number);
+		sem_post(sem_write_to_log);
 		//READ_UNLOCK(bank->pacc_arr[i].account_sem_read, bank->pacc_arr[i].account_sem_write, &bank->pacc_arr[i].account_readers));
         sem_post(account_ARR[i]->account_sem_write);
 	}
@@ -63,15 +65,20 @@ void print_acc(pbank bank) {
 		return;
 	}
    // sleep(1);
+    sem_wait(sem_write_to_log);
 	fprintf(log_file, "Current Bank Status\n");
+	sem_post(sem_write_to_log);
 	for (int i = 0; account_full[i]==true; i++) {
         READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+        sem_wait(sem_write_to_log);
 		fprintf(log_file, "Account %d: Balance = %d , \n", bank->pacc_arr[i]->number, bank->pacc_arr[i]->balance);
 		fprintf(log_file, "Account Password = %s, \n", bank->pacc_arr[i]->password);
+		sem_post(sem_write_to_log);
 		READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
 	}
-
+    sem_wait(sem_write_to_log);
 	fprintf(log_file, "The Bank has %d $\n", bank->bank_balance);
+	sem_post(sem_write_to_log);
 	READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 }
 
