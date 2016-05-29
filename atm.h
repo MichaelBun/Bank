@@ -8,7 +8,7 @@
 #include <semaphore.h>
 
 #define MAX_LINE_SIZE 30
-#define ATM_NUM 1
+#define ATM_NUM 2
 #define MAX_ACCOUNT_NUM 1000
 
 sem_t* bank_sem_read;
@@ -37,6 +37,7 @@ ATM *ATM_ARR[ATM_NUM]; //Initialize the ATM list
 account *account_ARR[MAX_ACCOUNT_NUM];//Initializing the account array
 FILE* log_file; //Pointer to our log file
 int num_of_accs;
+bool flag;
 
 //IMPLEMENTATION FUNCTIONS
 void* atm_start(void* atm_data);
