@@ -1,6 +1,5 @@
 #include "atm.h"
 #include "bank.h"
-#include "math.h"
 #define SIZE_OF_COMMAND_FILE 20
 #define PLACE_OF_N_CHAR 5
 #define MAX_WORD_SIZE 20
@@ -127,13 +126,7 @@
 
 void open_account(char* account_number, char* password, char* initial_ammount, int atm_num)
 {
-    /*int write_val;
-    int read_val;
-    sem_getvalue(bank_sem_write,&write_val);
-    sem_getvalue(bank_sem_read,&read_val);
-    printf("%d\n",write_val);
-    printf("%d\n",read_val);*/
-    sem_wait(bank_sem_write);
+   sem_wait(bank_sem_write);
     //Initializing
     bool account_num_taken = false;
     account* new_account = (account*)malloc(sizeof(account));
@@ -152,8 +145,8 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
         {
             if(account_ARR[i]->number==atoi(account_number))
             {
-                sleep(1);
-                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num+1);
+                //sleep(1);
+                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num);
                 account_num_taken = true;
                 free(new_account->account_sem_read);
                 free(new_account->account_sem_write);
@@ -164,59 +157,19 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
     }
 
     //Pushing the new account into the array
-    if(account_full[0]==false){
-        sleep(1);
-        num_of_accs++;
-        account_ARR[0]=new_account;
-        account_full[0]=true;
-        sem_wait(sem_write_to_log);
-        fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
-        sem_post(sem_write_to_log);
-
-        sem_post(bank_sem_write);
-        return;
-
-    }
-
-   // for(int i=0; (i<MAX_ACCOUNT_NUM) && (account_num_taken == false)  ;i++) //While we find an empty space and
-    for(int i=0; i<num_of_accs; i++)
+    for(int i=0; (i<MAX_ACCOUNT_NUM) && (account_num_taken == false)  ;i++) //While we find an empty space and
     {
-       /* if(account_full[i]==false)
+        if(account_full[i]==false)
         {
-            sleep(1);
-            num_of_accs++;
+            //sleep(1);
             account_ARR[i]=new_account;
+            num_of_accs++;
             account_full[i]=true;
-            sem_wait(sem_write_to_log);
-            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
-            sem_post(sem_write_to_log);
+            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num,new_account->number,new_account->password,new_account->balance);
             break;
-        }*/
-
-        if(new_account->number<account_ARR[i]->number){
-            sleep(1);
-            for(int j=num_of_accs; j>i; j--){
-                account_ARR[j]=account_ARR[j-1];
-            }
-
-            account_ARR[i]=new_account;
-            account_full[num_of_accs]=true;
-            sem_wait(sem_write_to_log);
-            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
-            sem_post(sem_write_to_log);
-            num_of_accs++;
-            sem_post(bank_sem_write);
-            return;
         }
     }
-
-            account_ARR[num_of_accs]=new_account;
-            account_full[num_of_accs]=true;
-            sem_wait(sem_write_to_log);
-            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
-            sem_post(sem_write_to_log);
-            num_of_accs++;
-            sem_post(bank_sem_write);
+    sem_post(bank_sem_write);
 
 }
 

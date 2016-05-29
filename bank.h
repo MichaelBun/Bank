@@ -2,7 +2,7 @@
 #define BANK_H_
 
 #include "atm.h"
-
+#include <time.h>
 
 typedef struct  _bank
 {

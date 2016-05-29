@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <semaphore.h>
+#include <math.h>
 
 #define MAX_LINE_SIZE 30
 #define ATM_NUM 2

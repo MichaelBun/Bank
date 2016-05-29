@@ -1,5 +1,6 @@
 #include "bank.h"
-#include <time.h>
+#include "atm.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
