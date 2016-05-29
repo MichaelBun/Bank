@@ -60,7 +60,7 @@ int main()
         if(rc = pthread_create(&ATM_THR[i],NULL,atm_func,(void*)ATM_ARR[i]))
         {
             printf("ERROR\n");
-            exit (-1);
+            exit(1);
         }
     }
 
@@ -69,13 +69,13 @@ int main()
 	if (pthread_create(&commission_thread, NULL, bank_commission_thread_func, (void*)p_bank))
 	{
 		printf("ERROR\n");
-		exit(-1);
+		exit(1);
 	}
 
 	if (pthread_create(&print_thread, NULL, bank_print_thread_func, (void*)p_bank))
 	{
 		printf("ERROR\n");
-		exit(-1);
+		exit(1);
 	}
 	//print_thread=pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
    // commission_thread=pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
