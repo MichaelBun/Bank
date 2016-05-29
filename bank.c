@@ -23,6 +23,17 @@ pbank bank_init(account** pacc_arr) {
 }
 
 void free_bank(pbank bank) {
+    for(int i=0; i<num_of_accs; i++){
+        sem_destroy(bank->pacc_arr[i]->account_sem_read);
+        sem_destroy(bank->pacc_arr[i]->account_sem_write);
+        free(bank->pacc_arr[i]->account_sem_read);
+        free(bank->pacc_arr[i]->account_sem_write);
+        free(bank->pacc_arr[i]);
+    }
+    for(int i=0; i<ATM_NUM; i++){
+        free(ATM_ARR[i]);
+    }
+    //free(bank->pacc_arr);
 	free(bank);
 }
 
