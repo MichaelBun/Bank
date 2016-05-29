@@ -178,7 +178,8 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
 
     }
 
-    for(int i=0; (i<MAX_ACCOUNT_NUM) && (account_num_taken == false)  ;i++) //While we find an empty space and
+   // for(int i=0; (i<MAX_ACCOUNT_NUM) && (account_num_taken == false)  ;i++) //While we find an empty space and
+    for(int i=0; i<num_of_accs; i++)
     {
        /* if(account_full[i]==false)
         {
@@ -194,7 +195,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
 
         if(new_account->number<account_ARR[i]->number){
             sleep(1);
-            for(int j=num_of_accs; j<i; j--){
+            for(int j=num_of_accs; j>i; j--){
                 account_ARR[j]=account_ARR[j-1];
             }
 
