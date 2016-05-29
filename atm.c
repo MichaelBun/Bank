@@ -19,7 +19,7 @@
         printf("I'm number %d\n",My_ATM->serial);*/
 
         char my_file_name[SIZE_OF_COMMAND_FILE];
-        strcpy(my_file_name,"atm_n.txt"); //Finding out which file should we open
+        strcpy(my_file_name,"ATM_n_input_file.txt"); //Finding out which file should we open
         my_file_name[PLACE_OF_N_CHAR-1] = My_ATM->serial + '0' + 1; //From int to ascii
         printf("Our file name is: %s\n",my_file_name);
 
@@ -164,10 +164,23 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
     }
 
     //Pushing the new account into the array
+    if(account_full[0]==false){
+        sleep(1);
+        num_of_accs++;
+        account_ARR[0]=new_account;
+        account_full[0]=true;
+        sem_wait(sem_write_to_log);
+        fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
+        sem_post(sem_write_to_log);
+
+        sem_post(bank_sem_write);
+        return;
+
+    }
 
     for(int i=0; (i<MAX_ACCOUNT_NUM) && (account_num_taken == false)  ;i++) //While we find an empty space and
     {
-        if(account_full[i]==false)
+       /* if(account_full[i]==false)
         {
             sleep(1);
             num_of_accs++;
@@ -177,9 +190,32 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
             fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
             sem_post(sem_write_to_log);
             break;
+        }*/
+
+        if(new_account->number<account_ARR[i]->number){
+            sleep(1);
+            for(int j=num_of_accs; j<i; j--){
+                account_ARR[j]=account_ARR[j-1];
+            }
+
+            account_ARR[i]=new_account;
+            account_full[num_of_accs]=true;
+            sem_wait(sem_write_to_log);
+            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
+            sem_post(sem_write_to_log);
+            num_of_accs++;
+            sem_post(bank_sem_write);
+            return;
         }
     }
-    sem_post(bank_sem_write);
+
+            account_ARR[num_of_accs]=new_account;
+            account_full[num_of_accs]=true;
+            sem_wait(sem_write_to_log);
+            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
+            sem_post(sem_write_to_log);
+            num_of_accs++;
+            sem_post(bank_sem_write);
 
 }
 
