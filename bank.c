@@ -63,7 +63,11 @@ void print_acc(pbank bank) {
     printf("\033[2J");
 	printf("\033[1;1H");
 
-
+    bool acc_printed[num_of_accs];
+    for(int i=0; i<num_of_accs; i++)
+    {
+        acc_printed[i] = false;
+    }
 
 	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
 
@@ -76,14 +80,39 @@ void print_acc(pbank bank) {
 	fprintf(log_file, "Current Bank Status\n");
 	sem_post(sem_write_to_log);
 
-	for (int i = 0; account_full[i]==true; i++) {
-        READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
-        sem_wait(sem_write_to_log);
-		fprintf(log_file, "Account %d: Balance = %d , \n", bank->pacc_arr[i]->number, bank->pacc_arr[i]->balance);
-		fprintf(log_file, "Account Password = %s, \n", bank->pacc_arr[i]->password);
-		sem_post(sem_write_to_log);
-		READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
-	}
+	for(int j=0; j<num_of_accs; j++)
+	{
+        account* current_min = NULL;
+        int counter_mem;
+        for(int i=0; i<num_of_accs; i++)
+        {
+            if(current_min == NULL && acc_printed[i] != true)
+            {
+                current_min = account_ARR[i];
+                counter_mem = i;
+            }
+            else
+            {
+                if((current_min->number > account_ARR[i]->number) && acc_printed[i] != true)
+                {
+                    current_min = account_ARR[i];
+                    counter_mem = i;
+                }
+            }
+
+        }
+
+        acc_printed[counter_mem] = true;
+
+        //for (int i = 0; account_full[i]==true; i++) {
+            READ_LOCK(current_min->account_sem_read,current_min->account_sem_write,&(current_min->account_readers));
+            sem_wait(sem_write_to_log);
+            fprintf(log_file, "Account %d: Balance = %d , \n", current_min->number, current_min->balance);
+            fprintf(log_file, "Account Password = %s, \n", current_min->password);
+            sem_post(sem_write_to_log);
+            READ_UNLOCK(current_min->account_sem_read,current_min->account_sem_write,&(current_min->account_readers));
+        //}
+    }
     sem_wait(sem_write_to_log);
 	fprintf(log_file, "The Bank has %d $\n", bank->bank_balance);
 	sem_post(sem_write_to_log);
