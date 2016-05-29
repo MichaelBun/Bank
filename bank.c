@@ -64,11 +64,6 @@ void print_acc(pbank bank) {
 	fprintf(log_file, "Current Bank Status\n");
 	sem_post(sem_write_to_log);
 
-    /*sem_wait(bank_sem_write);//lock
-	qsort(bank->pacc_arr, num_of_accs, sizeof(account*), cmpfunc); //sort account array
-	sem_post(bank_sem_write);//unlock
-*/
-
 	for (int i = 0; account_full[i]==true; i++) {
         READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
         sem_wait(sem_write_to_log);
@@ -87,13 +82,3 @@ void print_acc(pbank bank) {
 
 
 
-
-//func compares account ids'
-int cmpfunc(const void* elem1, const void* elem2) {
-
-	account* f = (account*)elem1;
-	account* s = (account*)elem2;
-	if (f->number > s->number) return 1;
-	if (f->number <	 s->number) return -1;
-	return 0;
-}
