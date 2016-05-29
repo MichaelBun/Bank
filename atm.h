@@ -14,6 +14,7 @@
 sem_t* bank_sem_read;
 sem_t* bank_sem_write;
 int bank_readers;
+sem_t* sem_write_to_log;
 
 typedef enum _bool {false,true}bool;
 

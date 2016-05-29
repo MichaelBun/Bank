@@ -24,8 +24,10 @@ int main()
     //BANK SEMAPHONE INIT
     bank_sem_read = (sem_t*)malloc(sizeof(sem_t));
     bank_sem_write = (sem_t*)malloc(sizeof(sem_t));
+    sem_write_to_log = (sem_t*)malloc(sizeof(sem_t));
     sem_init(bank_sem_read,0,1);
     sem_init(bank_sem_write,0,1);
+    sem_init(sem_write_to_log,0,1);
     bank_readers=0;
     //BANK SEMAPHONE INIT
     //BANK SEMAPHONE INIT
@@ -47,9 +49,13 @@ int main()
 	p_bank = bank_init(account_ARR);
 
 
-
+    if(fopen("log.txt","r")!=NULL)
+    {
+        remove("log.txt");
+    }
     //Creating a new file
     log_file = fopen("log.txt","w");
+
 
 
     //Threads
