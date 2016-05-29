@@ -19,7 +19,7 @@
         printf("I'm number %d\n",My_ATM->serial);*/
 
         char my_file_name[SIZE_OF_COMMAND_FILE];
-        strcpy(my_file_name,"ATM_n_input_file.txt"); //Finding out which file should we open
+        strcpy(my_file_name,"atm_n.txt"); //Finding out which file should we open
         my_file_name[PLACE_OF_N_CHAR-1] = My_ATM->serial + '0' + 1; //From int to ascii
         printf("Our file name is: %s\n",my_file_name);
 

@@ -109,7 +109,7 @@ int main()
 
 void *bank_commission_thread_func(void *arg)
 {
-	while (flag==false) {
+	while (1) {
       //  if(num_of_accs==0) continue;
 		commision(p_bank);
         sleep(3);
@@ -121,7 +121,7 @@ void *bank_commission_thread_func(void *arg)
 
 void *bank_print_thread_func(void *arg)
 {
-	while (flag==false) {
+	while (1) {
       //  if(num_of_accs==0) continue;
 		print_acc(p_bank);
 		usleep(500000); //0.5 sec

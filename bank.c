@@ -31,7 +31,7 @@ void commision(pbank bank) {
 	srand(time(NULL));
 	double percentage = (rand() % 2 + 2);
 
-	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
+	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
 	for (int i = 0; account_full[i]==true ; i++) {
 		int sum = account_commision(bank->pacc_arr[i], percentage);
 		sem_wait(account_ARR[i]->account_sem_write);
@@ -44,7 +44,7 @@ void commision(pbank bank) {
 	}
 
 
-	READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
+	//READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 }
 
 void print_acc(pbank bank) {
@@ -56,10 +56,10 @@ void print_acc(pbank bank) {
 	qsort(bank->pacc_arr, num_of_accs, sizeof(account*), cmpfunc); //sort account array
 	sem_post(bank_sem_write);//unlock
 */
-	READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
+	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
 
 	if (num_of_accs == 0) {
-		READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
+		//READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 		return;
 	}
    // sleep(1);
@@ -72,7 +72,7 @@ void print_acc(pbank bank) {
 	}
 
 	fprintf(log_file, "The Bank has %d $\n", bank->bank_balance);
-	READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
+	//READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 }
 
 /******************************************************************************/
