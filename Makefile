@@ -6,7 +6,7 @@ OBJS = atm.o bank.o  main.o
 RM = rm -f
 
 bank: $(OBJS)
-	$(CXXLINK) -o bank $(OBJS) $(LIBS)  
+	$(CXXLINK) $(CXXFLAGS) -o bank $(OBJS) $(LIBS)  
 
 atm.o: atm.c atm.h bank.h
 bank.o: bank.c bank.h
