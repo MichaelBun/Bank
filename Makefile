@@ -1,6 +1,6 @@
 CC = gcc
-CXXFLAGS = -g -Wall
-CXXLINK = $(CC) -std=c99
+CXXFLAGS = -std=c99 -g -Wall
+CXXLINK = $(CC)
 LIBS = -lpthread -lm
 OBJS = atm.o bank.o  main.o 
 RM = rm -f
