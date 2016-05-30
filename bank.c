@@ -50,13 +50,20 @@ void commision(pbank bank) {
 	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
 	for (int i = 0; account_full[i]==true ; i++) {
 		int sum = account_commision(bank->pacc_arr[i], percentage);
-		sem_wait(account_ARR[i]->account_sem_write);
+
+        READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+
+		READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
 		bank->bank_balance += sum;
+		READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
+
 		//Need lock for log file
 		sem_wait(sem_write_to_log);
 		fprintf(log_file, "Bank: commissions of %.2f %% were charged, the bank gained %d $ from account %d\n", percentage, sum, bank->pacc_arr[i]->number);
 		sem_post(sem_write_to_log);
-        sem_post(account_ARR[i]->account_sem_write);
+
+        READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
+
 	}
 
 
@@ -69,6 +76,9 @@ void print_acc(pbank bank) {
 	printf("\033[1;1H");
 
     bool acc_printed[num_of_accs];
+
+    READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
+
     for(int i=0; i<num_of_accs; i++)
     {
         acc_printed[i] = false;
@@ -79,6 +89,7 @@ void print_acc(pbank bank) {
 	for(int j=0; j<num_of_accs; j++)
 	{
 	//printf("FIRST FOR\n");
+
         account* current_min = NULL;
         int counter_mem;
         for(int i=0; i<num_of_accs; i++)
@@ -102,7 +113,10 @@ void print_acc(pbank bank) {
                         counter_mem = i;
                     }
                 }
-                else return;
+                else {
+                 READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
+                 return;
+                }
             }
 
         }
@@ -115,6 +129,7 @@ void print_acc(pbank bank) {
     }
 
 	printf("The Bank has %d $\n", bank->bank_balance);
+    READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 
 }
 
