@@ -1,4 +1,4 @@
-CC = gcc -std=c99
+CC = gcc -std=gnu99
 CXXFLAGS = -g -Wall
 CXXLINK = $(CC)
 LIBS = -lpthread -lm
