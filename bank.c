@@ -24,11 +24,12 @@ pbank bank_init(account** pacc_arr) {
 }
 
 void free_bank(pbank bank) {
-    for(int i=0; account_full[i]==true; i++){
+    for(int i=0; i < num_of_accs; i++){
         sem_destroy(bank->pacc_arr[i]->account_sem_read);
         sem_destroy(bank->pacc_arr[i]->account_sem_write);
         free(bank->pacc_arr[i]->account_sem_read);
         free(bank->pacc_arr[i]->account_sem_write);
+        free(bank->pacc_arr[i]->password);
         free(bank->pacc_arr[i]);
     }
     for(int i=0; i<ATM_NUM; i++){
@@ -60,8 +61,9 @@ void commision(pbank bank) {
 }
 
 void print_acc(pbank bank) {
-    printf("\033[2J");
-	printf("\033[1;1H");
+    if(num_of_accs==0) return;
+    //printf("\033[2J");
+	//printf("\033[1;1H");
 
     bool acc_printed[num_of_accs];
     for(int i=0; i<num_of_accs; i++)
@@ -71,10 +73,6 @@ void print_acc(pbank bank) {
 
 	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
 
-	if (num_of_accs == 0) {
-		//READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
-		return;
-	}
    // sleep(1);
     sem_wait(sem_write_to_log);
 	fprintf(log_file, "Current Bank Status\n");
@@ -82,22 +80,31 @@ void print_acc(pbank bank) {
 
 	for(int j=0; j<num_of_accs; j++)
 	{
+	//printf("FIRST FOR\n");
         account* current_min = NULL;
         int counter_mem;
         for(int i=0; i<num_of_accs; i++)
         {
+        //printf("SECOND FOR\n");
             if(current_min == NULL && acc_printed[i] != true)
             {
+                //printf("FIRST IF\n");
                 current_min = account_ARR[i];
                 counter_mem = i;
             }
             else
             {
-                if((current_min->number > account_ARR[i]->number) && acc_printed[i] != true)
+                //printf("ELSE\n");
+                if(current_min!= NULL)
                 {
-                    current_min = account_ARR[i];
-                    counter_mem = i;
+                    if((current_min->number > account_ARR[i]->number) && acc_printed[i] != true)
+                    {
+                        //printf("ELSE - IF\n");
+                        current_min = account_ARR[i];
+                        counter_mem = i;
+                    }
                 }
+                else return;
             }
 
         }

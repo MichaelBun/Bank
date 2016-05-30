@@ -20,7 +20,7 @@
         char my_file_name[SIZE_OF_COMMAND_FILE];
         strcpy(my_file_name,"ATM_n_input_file.txt"); //Finding out which file should we open
         my_file_name[PLACE_OF_N_CHAR-1] = My_ATM->serial + '0' + 1; //From int to ascii
-        printf("Our file name is: %s\n",my_file_name);
+        //printf("Our file name is: %s\n",my_file_name);
 
         FILE* command_file = fopen(my_file_name,"r");
         if(command_file == NULL)
@@ -116,6 +116,7 @@
         free(args[3]);
         free(args[4]);*/
         free(line);
+        free(delim);
         fclose(command_file);
         flag=true;
         pthread_exit(NULL);

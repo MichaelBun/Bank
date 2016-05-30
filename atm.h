@@ -19,6 +19,7 @@ sem_t* sem_write_to_log;
 
 typedef enum _bool {false,true}bool;
 
+
 typedef struct _ATM
 {
     int serial;

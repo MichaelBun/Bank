@@ -102,8 +102,10 @@ int main()
     //DESTROYING BANK SEMAPHORE
     sem_destroy(bank_sem_read);
     sem_destroy(bank_sem_write);
+    sem_destroy(sem_write_to_log);
     free(bank_sem_read);
     free(bank_sem_write);
+    free(sem_write_to_log);
     //DESTROYING BANK SEMAPHORE
     //DESTROYING BANK SEMAPHORE
     //DESTROYING BANK SEMAPHORE
@@ -117,7 +119,7 @@ void *bank_commission_thread_func(void *arg)
 {
 	while (1) {
         //if(num_of_accs==0) continue;
-       // printf("commission\n");
+        //printf("commission\n");
 		commision(p_bank);
         sleep(3);
 		pthread_testcancel();
@@ -130,7 +132,7 @@ void *bank_print_thread_func(void *arg)
 {
 	while (1) {
        // if(num_of_accs==0) continue;
-      //  printf("print\n");
+        //printf("print\n");
 		print_acc(p_bank);
 		usleep(500000); //0.5 sec
 		pthread_testcancel();
