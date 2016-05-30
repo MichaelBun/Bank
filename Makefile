@@ -1,7 +1,7 @@
 CC = gcc
 CXXFLAGS = -g -Wall
 CXXLINK = $(CC)
-LIBS = -lpthread -lm
+LIBS = -std=c99 -lpthread -lm
 OBJS = atm.o bank.o  main.o 
 RM = rm -f
 
