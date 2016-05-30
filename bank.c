@@ -33,6 +33,7 @@ void free_bank(pbank bank) {
         free(bank->pacc_arr[i]);
     }
     for(int i=0; i<ATM_NUM; i++){
+        free(ATM_ARR[i]->file_name);
         free(ATM_ARR[i]);
     }
 	free(bank);

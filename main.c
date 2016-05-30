@@ -6,9 +6,20 @@ void *bank_commission_thread_func(void *arg);
 
 //global
 pbank p_bank;
-
-int main()
+int main(int argc, char** argv)
 {
+
+//printf("%d\n",argc);
+ATM_NUM = argc-2;
+//printf("%d\n",ATM_NUM);
+char* file_names[ATM_NUM];
+
+    for(int i=0; i<ATM_NUM; i++)
+    {
+        //printf("%s\n",argv[i+2]);
+        file_names[i] = (char*)malloc(sizeof(argv[i+2]));
+        strcpy(file_names[i],argv[i+2]);
+    }
     	//init number of accounts
 	num_of_accs = 0;
     void* (*atm_func)(void*); //ATM function pointer
@@ -18,7 +29,6 @@ int main()
     {
         account_full[i] = false;
     }
-
 
     //BANK SEMAPHONE INIT
     //BANK SEMAPHONE INIT
@@ -38,6 +48,7 @@ int main()
     {
         ATM_ARR[i] = (ATM*)malloc(sizeof(ATM)); //Common memory
         ATM_ARR[i]->serial = i;
+        ATM_ARR[i]->file_name = file_names[i];
     }
 
     //Initializing account pointers

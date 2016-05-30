@@ -7,15 +7,17 @@
 #include <string.h>
 #include <semaphore.h>
 #include <math.h>
+#include <stdarg.h>
 
 #define MAX_LINE_SIZE 30
-#define ATM_NUM 2
 #define MAX_ACCOUNT_NUM 1000
+#define MAX_ATM_NUM 30
 
 sem_t* bank_sem_read;
 sem_t* bank_sem_write;
 int bank_readers;
 sem_t* sem_write_to_log;
+int ATM_NUM;
 
 typedef enum _bool {false,true}bool;
 
@@ -23,6 +25,7 @@ typedef enum _bool {false,true}bool;
 typedef struct _ATM
 {
     int serial;
+    char* file_name;
 }ATM;
 
 typedef struct _account
@@ -36,7 +39,7 @@ typedef struct _account
 }account;
 
 bool account_full[MAX_ACCOUNT_NUM]; //Shows if the account in place i is empty or not
-ATM *ATM_ARR[ATM_NUM]; //Initialize the ATM list
+ATM* ATM_ARR[MAX_ATM_NUM]; //Initialize the ATM list
 account *account_ARR[MAX_ACCOUNT_NUM];//Initializing the account array
 FILE* log_file; //Pointer to our log file
 int num_of_accs;
