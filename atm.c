@@ -433,11 +433,11 @@ void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
 
 int account_commision(account* pacc, double percent) {
 
-	sem_wait(pacc->account_sem_write); //START WRITE
+	//sem_wait(pacc->account_sem_write); //START WRITE
 	//sleep(1);
 	int comission = round(pacc->balance*percent / 100);
 	pacc->balance -= comission;
-	sem_post(pacc->account_sem_write); //END WRITE//unlock
+	//sem_post(pacc->account_sem_write); //END WRITE//unlock
 	return comission;
 
 }

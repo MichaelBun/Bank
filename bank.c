@@ -41,8 +41,11 @@ void free_bank(pbank bank) {
 
 void commision(pbank bank) {
     if(num_of_accs==0) return;
-	srand(time(NULL));
-	double percentage = (rand() % 2 + 2);
+	//srand(time(NULL));
+	double percentage;
+    double range = (4 - 2);
+    double div = RAND_MAX / range;
+    percentage= 2 + (rand() / div);
 
 	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
 	for (int i = 0; account_full[i]==true ; i++) {
@@ -51,7 +54,7 @@ void commision(pbank bank) {
 		bank->bank_balance += sum;
 		//Need lock for log file
 		sem_wait(sem_write_to_log);
-		fprintf(log_file, "Bank: commissions of %d %% were charged, the bank gained %d $ from account %d\n", (int)percentage, sum, bank->pacc_arr[i]->number);
+		fprintf(log_file, "Bank: commissions of %.2f %% were charged, the bank gained %d $ from account %d\n", percentage, sum, bank->pacc_arr[i]->number);
 		sem_post(sem_write_to_log);
         sem_post(account_ARR[i]->account_sem_write);
 	}
