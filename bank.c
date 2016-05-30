@@ -39,6 +39,7 @@ void free_bank(pbank bank) {
 
 
 void commision(pbank bank) {
+    if(num_of_accs==0) return;
 	srand(time(NULL));
 	double percentage = (rand() % 2 + 2);
 

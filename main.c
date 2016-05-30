@@ -31,7 +31,8 @@ int main()
     bank_readers=0;
     //BANK SEMAPHONE INIT
     //BANK SEMAPHONE INIT
-
+    	//init bank
+	p_bank = bank_init(account_ARR);
     //Initializing ATMS
     for(int i=0; i<ATM_NUM; i++)
     {
@@ -45,8 +46,7 @@ int main()
         account_ARR[i] = NULL;
     }
 
-	//init bank
-	p_bank = bank_init(account_ARR);
+
 
 
     if(fopen("log.txt","r")!=NULL)
@@ -116,7 +116,8 @@ int main()
 void *bank_commission_thread_func(void *arg)
 {
 	while (1) {
-      //  if(num_of_accs==0) continue;
+        //if(num_of_accs==0) continue;
+       // printf("commission\n");
 		commision(p_bank);
         sleep(3);
 		pthread_testcancel();
@@ -128,7 +129,8 @@ void *bank_commission_thread_func(void *arg)
 void *bank_print_thread_func(void *arg)
 {
 	while (1) {
-      //  if(num_of_accs==0) continue;
+       // if(num_of_accs==0) continue;
+      //  printf("print\n");
 		print_acc(p_bank);
 		usleep(500000); //0.5 sec
 		pthread_testcancel();
