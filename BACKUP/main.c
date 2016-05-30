@@ -9,10 +9,10 @@ pbank p_bank;
 int main(int argc, char** argv)
 {
 
-    //printf("%d\n",argc);
-    ATM_NUM = argc-2;
-    //printf("%d\n",ATM_NUM);
-    char* file_names[ATM_NUM];
+//printf("%d\n",argc);
+ATM_NUM = argc-2;
+//printf("%d\n",ATM_NUM);
+char* file_names[ATM_NUM];
 
     for(int i=0; i<ATM_NUM; i++)
     {
@@ -20,10 +20,15 @@ int main(int argc, char** argv)
         file_names[i] = (char*)malloc(sizeof(argv[i+2]));
         strcpy(file_names[i],argv[i+2]);
     }
-
+    	//init number of accounts
+	num_of_accs = 0;
     void* (*atm_func)(void*); //ATM function pointer
-    atm_func= atm_start;
+    atm_func = &atm_start;
 
+    for(int i=0; i<MAX_ACCOUNT_NUM; i++)
+    {
+        account_full[i] = false;
+    }
 
     //BANK SEMAPHONE INIT
     //BANK SEMAPHONE INIT

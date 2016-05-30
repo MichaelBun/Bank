@@ -9,6 +9,18 @@
 
         ATM* My_ATM = (ATM*)atm_data; //Getting my current atm serial number
 
+       /* char cwd[100]; //CURRENT DIRECTORY TEST
+        getcwd(cwd,100);
+        printf("%s\n",cwd); */
+
+         /*printf("WE ARE HERE\n");
+        printf("I'm number %d\n",My_ATM->serial);*/
+
+        /*char my_file_name[SIZE_OF_COMMAND_FILE];
+        strcpy(my_file_name,"ATM_n_input_file.txt"); //Finding out which file should we open
+        my_file_name[PLACE_OF_N_CHAR-1] = My_ATM->serial + '0' + 1; //From int to ascii
+        //printf("Our file name is: %s\n",my_file_name);*/
+        //printf("%s\n",My_ATM->file_name);
         FILE* command_file = fopen(My_ATM->file_name,"r");
         if(command_file == NULL)
         {
@@ -134,7 +146,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
             if(account_ARR[i]->number==atoi(account_number))
             {
                 //sleep(1);
-                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num);
+                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num+1);
                 account_num_taken = true;
                 free(new_account->account_sem_read);
                 free(new_account->account_sem_write);
@@ -153,7 +165,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
             account_ARR[i]=new_account;
             num_of_accs++;
             account_full[i]=true;
-            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num,new_account->number,new_account->password,new_account->balance);
+            fprintf(log_file,"%d: New account id is %d with password %s and initial balance %d\n",atm_num+1,new_account->number,new_account->password,new_account->balance);
             break;
         }
     }
@@ -420,9 +432,11 @@ void READ_UNLOCK(sem_t* read_sem, sem_t* write_sem, int* readers)
 
 int account_commision(account* pacc, double percent) {
 
-
+	sem_wait(pacc->account_sem_write); //START WRITE
+	//sleep(1);
 	int comission = round(pacc->balance*percent / 100);
 	pacc->balance -= comission;
+	sem_post(pacc->account_sem_write); //END WRITE//unlock
 	return comission;
 
 }

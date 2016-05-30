@@ -33,6 +33,7 @@ void free_bank(pbank bank) {
         free(bank->pacc_arr[i]);
     }
     for(int i=0; i<ATM_NUM; i++){
+        free(ATM_ARR[i]->file_name);
         free(ATM_ARR[i]);
     }
 	free(bank);
@@ -41,29 +42,19 @@ void free_bank(pbank bank) {
 
 void commision(pbank bank) {
     if(num_of_accs==0) return;
-	//srand(time(NULL));
-	double percentage;
-    double range = (4 - 2);
-    double div = RAND_MAX / range;
-    percentage= 2 + (rand() / div);
+	srand(time(NULL));
+	double percentage = (rand() % 2 + 2);
 
 	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
 	for (int i = 0; account_full[i]==true ; i++) {
 		int sum = account_commision(bank->pacc_arr[i], percentage);
-
-        READ_LOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
-
-		READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
+		sem_wait(account_ARR[i]->account_sem_write);
 		bank->bank_balance += sum;
-		READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
-
 		//Need lock for log file
 		sem_wait(sem_write_to_log);
-		fprintf(log_file, "Bank: commissions of %.2f %% were charged, the bank gained %d $ from account %d\n", percentage, sum, bank->pacc_arr[i]->number);
+		fprintf(log_file, "Bank: commissions of %d %% were charged, the bank gained %d $ from account %d\n", (int)percentage, sum, bank->pacc_arr[i]->number);
 		sem_post(sem_write_to_log);
-
-        READ_UNLOCK(account_ARR[i]->account_sem_read,account_ARR[i]->account_sem_write,&(account_ARR[i]->account_readers));
-
+        sem_post(account_ARR[i]->account_sem_write);
 	}
 
 
@@ -72,24 +63,25 @@ void commision(pbank bank) {
 
 void print_acc(pbank bank) {
     if(num_of_accs==0) return;
-    printf("\033[2J");
-	printf("\033[1;1H");
+    //printf("\033[2J");
+	//printf("\033[1;1H");
 
     bool acc_printed[num_of_accs];
-
-    READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //semaphore_read bank
-
     for(int i=0; i<num_of_accs; i++)
     {
         acc_printed[i] = false;
     }
 
-	printf("Current Bank Status\n");
+	//READ_LOCK(bank_sem_read, bank_sem_write, &bank_readers); //lock
+
+   // sleep(1);
+    sem_wait(sem_write_to_log);
+	fprintf(log_file, "Current Bank Status\n");
+	sem_post(sem_write_to_log);
 
 	for(int j=0; j<num_of_accs; j++)
 	{
 	//printf("FIRST FOR\n");
-
         account* current_min = NULL;
         int counter_mem;
         for(int i=0; i<num_of_accs; i++)
@@ -113,24 +105,26 @@ void print_acc(pbank bank) {
                         counter_mem = i;
                     }
                 }
-                else {
-                 READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
-                 return;
-                }
+                else return;
             }
 
         }
 
         acc_printed[counter_mem] = true;
 
-            printf("Account %d: Balance = %d , \n", current_min->number, current_min->balance);
-            printf("Account Password = %s, \n", current_min->password);
-
+        //for (int i = 0; account_full[i]==true; i++) {
+            READ_LOCK(current_min->account_sem_read,current_min->account_sem_write,&(current_min->account_readers));
+            sem_wait(sem_write_to_log);
+            fprintf(log_file, "Account %d: Balance = %d , \n", current_min->number, current_min->balance);
+            fprintf(log_file, "Account Password = %s, \n", current_min->password);
+            sem_post(sem_write_to_log);
+            READ_UNLOCK(current_min->account_sem_read,current_min->account_sem_write,&(current_min->account_readers));
+        //}
     }
-
-	printf("The Bank has %d $\n", bank->bank_balance);
-    READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
-
+    sem_wait(sem_write_to_log);
+	fprintf(log_file, "The Bank has %d $\n", bank->bank_balance);
+	sem_post(sem_write_to_log);
+	//READ_UNLOCK(bank_sem_read, bank_sem_write, &bank_readers); //unlock
 }
 
 /******************************************************************************/

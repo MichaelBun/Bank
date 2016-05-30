@@ -1,0 +1,15 @@
+0: New account id is 123456 with password 123456 and initial balance 50
+1: New account id is 321 with password 321 and initial balance 50
+1: Account 123456 new balance is 100 after 50 $ was deposited
+1: Account 123456 balance is 100
+2: Transfer 50 from account 123456 to account 321 new account balance is 50 new target account balance is 100
+Error 0: Your transaction failed – account with the same id exists
+0: New account id is 234 with password 123 and initial balance 1000
+Bank: commissions of 3.68 % were charged, the bank gained 2 $ from account 123456
+Bank: commissions of 3.68 % were charged, the bank gained 4 $ from account 321
+Bank: commissions of 3.68 % were charged, the bank gained 37 $ from account 234
+2: Account 321 balance is 96
+1: Transfer 500 from account 234 to account 123456 new account balance is 463 new target account balance is 548
+1: Account 123456 balance is 548
+Error 1: Your transaction failed – password for account id 123456 is incorrect
+Error 1: Your transaction failed – account id 123456 balance is lower than 1000
