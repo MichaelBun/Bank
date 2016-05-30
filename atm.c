@@ -27,14 +27,14 @@
         flag = false;
         while((read = getline(&line, &len, command_file)) != -1) //We got a new line
         {
-         //   bool illegal_command = false;
+           bool illegal_command = false;
             //printf("%s",line);
             //NEW ARGS
             args[0] = NULL;
             args[1] = NULL;
             args[2] = NULL;
             args[3] = NULL;
-            args[4] = NULL;
+            args[4] = NULL; 
             //NEW ARGS
 
             args[0] = strtok(line,delim); //Command
@@ -45,8 +45,11 @@
             strcpy(args[0],line);*/
             if(args[0] == NULL) //Checking we actually got the argument
             {
-               // illegal_command = true;
+                illegal_command = true;
+                //printf("%d",read);
                 printf("CANT READ THE COMMAND\n");
+                free(line);
+                pthread_exit(NULL);
             }
             //printf("%s\n",args[0]);
             int args_num = 1;
@@ -59,7 +62,7 @@
                     args_num++;
                     if(args_num > 5)
                     {
-                 //       illegal_command = true;
+                        illegal_command = true;
                         break;
                     }
                 }
@@ -134,7 +137,7 @@ void open_account(char* account_number, char* password, char* initial_ammount, i
             if(account_ARR[i]->number==atoi(account_number))
             {
                 //sleep(1);
-                fprintf(log_file,"Error %d: Your transaction failed – account with the same id exists\n",atm_num);
+                fprintf(log_file,"Error %d: Your transaction failed - account with the same id exists\n",atm_num);
                 account_num_taken = true;
                 free(new_account->account_sem_read);
                 free(new_account->account_sem_write);
@@ -191,13 +194,13 @@ void deposit (char* account_number, char* password, char* ammount,int atm_num)
     if(account_found == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d does not exist\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
     else if(password_correct == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
 
@@ -240,19 +243,19 @@ void withdraw(char* account_number, char* password, char* ammount,int atm_num)
     if(account_found == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d does not exist\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
     else if(password_correct == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
     else if(enough_money == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d balance is lower than %d\n",atm_num+1,atoi(account_number),balance_memory);
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d balance is lower than %d\n",atm_num+1,atoi(account_number),balance_memory);
         sem_post(sem_write_to_log);
     }
 
@@ -289,13 +292,13 @@ void balance (char* account_number, char* password,int atm_num)
     if(account_found == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d does not exist\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
     else if(password_correct == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
 
@@ -365,25 +368,25 @@ void transfer(char* account_number, char* password, char* target_account, char* 
     if(from_account_found == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d does not exist\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
     else if(to_account_found == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d does not exist\n",atm_num+1,atoi(target_account));
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d does not exist\n",atm_num+1,atoi(target_account));
         sem_post(sem_write_to_log);
     }
     else if(password_correct == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
+        fprintf(log_file,"Error %d: Your transaction failed - password for account id %d is incorrect\n",atm_num+1,atoi(account_number));
         sem_post(sem_write_to_log);
     }
     else if(enough_money == false)
     {
         sem_wait(sem_write_to_log);
-        fprintf(log_file,"Error %d: Your transaction failed – account id %d balance is lower than %d\n",atm_num+1,atoi(account_number),balance_memory);
+        fprintf(log_file,"Error %d: Your transaction failed - account id %d balance is lower than %d\n",atm_num+1,atoi(account_number),balance_memory);
         sem_post(sem_write_to_log);
     }
 

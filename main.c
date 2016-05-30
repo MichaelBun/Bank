@@ -6,9 +6,11 @@ void *bank_commission_thread_func(void *arg);
 
 //global
 pbank p_bank;
+
 int main(int argc, char** argv)
 {
-
+     	//init number of accounts
+	  num_of_accs = 0;
     //printf("%d\n",argc);
     ATM_NUM = argc-2;
     //printf("%d\n",ATM_NUM);

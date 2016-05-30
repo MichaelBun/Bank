@@ -9,8 +9,8 @@
 #include <math.h>
 
 #define MAX_LINE_SIZE 30
+#define MAX_ATM_NUM 200
 #define MAX_ACCOUNT_NUM 1000
-#define MAX_ATM_NUM 20
 
 int ATM_NUM;
 sem_t* bank_sem_read;
